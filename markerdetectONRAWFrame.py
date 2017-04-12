@@ -4,7 +4,7 @@
 """
 条件
 ・指座標系を切り出して計測しています
-・マーカーの枠は固定しています．
+・マーカーの枠は移動シています．
 ・マーカーテンプレートは更新していません．
 
 
@@ -78,8 +78,8 @@ def main():
 
     skipframes = 360
     nearbywindow = 25
-    fingerFrameHeight,fingerFrameWidth,fingerFrameDim = (750,750,3)
-    markerCutOffset = 5
+    fingerFrameHeight,fingerFrameWidth,fingerFrameDim = (500,750,3)
+    markerCutOffset = 4
     fingerPlace_offset = 10
     gaussianWindow = (5,5)
     markerThreshold = 0.70
@@ -194,7 +194,7 @@ def main():
     outVideo_fingertemplate = cv2.VideoWriter(rec_fingerFrameName,
                                               fourcc,
                                               __outVideo_frameRate,
-                                              tmp_fingerTemplate_videoshape)
+                                              tmp_rawVideo_videoshape)
     outVideo_VideoFrame = cv2.VideoWriter(rec_VideoFrameName,
                                           fourcc,
                                           __outVideo_frameRate,
@@ -257,7 +257,7 @@ def main():
 
 
     #マーカー場所にあたりを付ける作業
-    matchtemplate_result = cv2.matchTemplate(fingerTemplate,
+    matchtemplate_result = cv2.matchTemplate(absoluteRawVideoFrame,
                             absoluteMarkerTemplate,
                             cv2.TM_CCOEFF_NORMED)
     
@@ -301,7 +301,7 @@ def main():
 
     #<<<<<<<<<<<<DEBUG>>>>>>>>>>>>>>>
     #===================STEP1の状態チェック===========================================
-    fingerTemplate_show = np.array(fingerTemplate)
+    fingerTemplate_show = np.array(absoluteRawVideoFrame)
 
     #デバッグとか行ってるけど，通常状態でも付けておいた方が賢明です．
     for i in xrange(len(everyMarkerPointPlace)):
@@ -359,6 +359,10 @@ def main():
     
     #カウンタを実際のフレームに対応させる
     counter = skipframes
+
+
+
+
     while(rawVideo.isOpened()):
         print "nowframe: %d" % counter
 
@@ -390,7 +394,7 @@ def main():
         #videoFrame_IO = IO_exchange(videoFrame,lower,upper)
 
         #これで，ゆびの場所をとる
-        fingerplace,fingerplace__ = mf.getfingerplace(absoluteFingerTemplate,videoFrame,fingerPlace_offset)
+        fingerplace,fingerplace__ = mf.getfingerplace(absoluteRawVideoFrame,videoFrame,fingerPlace_offset)
         
         #指のとこだけトリミング
         videoFrame_Finger = mf.cutimg(videoFrame,fingerplace,fingerFrameWidth,fingerFrameHeight)
@@ -407,10 +411,10 @@ def main():
         for i in xrange(len(everyMarkerPointPlace)):
 
             #最初に指定したマーカーテンプレートを用いる
-            markerTemplate = mf.cutimg(fingerTemplate,everyMarkerPointPlace[i],markerFrameWidth,markerFrameHeight)
+            markerTemplate = mf.cutimg(absoluteRawVideoFrame,everyMarkerPointPlace[i],markerFrameWidth,markerFrameHeight)
             
             #今のフレームからオフセットつけた矩形の中でテンプレートマッチング
-            tmp___ =mf.find_marker(markerTemplate,everyMarkerPointPlace[i],videoFrame_Finger,markerCutOffset,i)
+            tmp___ =mf.find_marker(markerTemplate,point_loc_new[i],videoFrame,markerCutOffset,i)
             tmp_markerpoint = tmp___[0]
             cutplace__ = tmp___[1]
 
@@ -450,7 +454,7 @@ def main():
         #fingerTemplate = np.array(videoFrame_Finger)
         #こいつは，指のテンプレートを新しい座標でとってしまってたので，コメントアウトしました．
         #2016/09/07．
-        videoFrame_Finger_print = np.array(videoFrame_Finger)
+        videoFrame_Finger_print = np.array(videoFrame)
 
         
         #四角形を書くよ！
@@ -485,6 +489,7 @@ def main():
             break
         
         
+
         if counter % 100 == 0:
             winsound.Beep(880,1000)
         #elif counter % 2 == 0:

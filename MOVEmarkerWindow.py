@@ -4,7 +4,7 @@
 """
 条件
 ・指座標系を切り出して計測しています
-・マーカーの枠は固定しています．
+・マーカーの枠は移動シています．
 ・マーカーテンプレートは更新していません．
 
 
@@ -78,7 +78,7 @@ def main():
 
     skipframes = 360
     nearbywindow = 25
-    fingerFrameHeight,fingerFrameWidth,fingerFrameDim = (750,750,3)
+    fingerFrameHeight,fingerFrameWidth,fingerFrameDim = (500,750,3)
     markerCutOffset = 5
     fingerPlace_offset = 10
     gaussianWindow = (5,5)
@@ -359,6 +359,10 @@ def main():
     
     #カウンタを実際のフレームに対応させる
     counter = skipframes
+
+
+
+
     while(rawVideo.isOpened()):
         print "nowframe: %d" % counter
 
@@ -410,7 +414,7 @@ def main():
             markerTemplate = mf.cutimg(fingerTemplate,everyMarkerPointPlace[i],markerFrameWidth,markerFrameHeight)
             
             #今のフレームからオフセットつけた矩形の中でテンプレートマッチング
-            tmp___ =mf.find_marker(markerTemplate,everyMarkerPointPlace[i],videoFrame_Finger,markerCutOffset,i)
+            tmp___ =mf.find_marker(markerTemplate,point_loc_new[i],videoFrame_Finger,markerCutOffset,i)
             tmp_markerpoint = tmp___[0]
             cutplace__ = tmp___[1]
 
