@@ -3,7 +3,7 @@
 
 """
 条件
-・指座標系を切り出してはいません．
+・指座標系を切り出して計測しています
 ・マーカーの枠は移動シています．
 ・マーカーテンプレートは更新していません．
 
@@ -76,10 +76,10 @@ def main():
 	#markerThreshold:     マーカーの場所を探索するときのしきい値．（defalt = 0.7)
 
 
-    skipframes = 1500
+    skipframes = 0
     nearbywindow = 20
     fingerFrameHeight,fingerFrameWidth,fingerFrameDim = (500,750,3)
-    markerCutOffset =4
+    markerCutOffset = 7
     fingerPlace_offset = 10
     gaussianWindow = (5,5)
     markerThreshold = 0.70
@@ -108,7 +108,7 @@ def main():
     #absoluteMarkerTemplateName = '../../SURA_marker.png'
     #absoluteFingerTemplateName = 'C0325.mp4_frame_360_finger.png'
 
-    """
+
     os.chdir(u'C:\\Users\\razer\\Dropbox\\Lab\\opencv\\python\\src')
 
 
@@ -122,32 +122,7 @@ def main():
     absoluteRawVideoFrame = cv2.imread(absoluteRawVideoFrameName)
     absoluteMarkerTemplate = cv2.imread(absoluteMarkerTemplateName)
     absoluteFingerTemplate = cv2.imread(absoluteFingerTemplateName)
-    """
 
-    os.chdir(u'C:\\Users\\razer\\Dropbox\\Lab\\opencv\\2017-04-14\\movies')
-
-
-    rawVideoName = 'C0421.MP4'
-    #absoluteRawVideoFrameName = '0.png'
-    absoluteMarkerTemplateName = '..\\C210pic_finger_pint.png'
-    absoluteFingerTemplateName = 'fingertmp.jpg'
-
-
-    rawVideo = cv2.VideoCapture(rawVideoName)
-    #absoluteRawVideoFrame = cv2.imread(absoluteRawVideoFrameName)
-    absoluteMarkerTemplate = cv2.imread(absoluteMarkerTemplateName)
-    absoluteFingerTemplate = cv2.imread(absoluteFingerTemplateName)
-
-
-    #フレーム指定
-    rawVideo.set(cv2.CAP_PROP_POS_FRAMES,skipframes)
-    ret , absoluteRawVideoFrame = rawVideo.read()
-
-    if ret==False:
-        print "aaa"
-        return
-
-    print absoluteRawVideoFrame.shape
     #マーカー画像幅高さ取得
     d,markerFrameWidth,markerFrameHeight  = absoluteMarkerTemplate.shape[::-1]
     
@@ -163,10 +138,9 @@ def main():
     
     #===================fingerTemplate作成============================================
 	#指だけを切り取った画像をフレームから作成する．
-    #tttmp = cv2.matchTemplate(absoluteFingerTemplate,absoluteRawVideoFrame,cv2.TM_CCOEFF_NORMED)
-    #a,b,c,max_loc = cv2.minMaxLoc(tttmp)
+    tttmp = cv2.matchTemplate(absoluteFingerTemplate,absoluteRawVideoFrame,cv2.TM_CCOEFF_NORMED)
+    a,b,c,max_loc = cv2.minMaxLoc(tttmp)
     
-    max_loc = (500,500)
     fingerTemplate = mf.cutimg(absoluteRawVideoFrame,max_loc,fingerFrameWidth,fingerFrameHeight)
     
     
@@ -293,8 +267,6 @@ def main():
 	#
 
 
-
-
     #マーカー場所にあたりを付ける作業
     matchtemplate_result = cv2.matchTemplate(absoluteRawVideoFrame,
                             absoluteMarkerTemplate,
@@ -360,8 +332,8 @@ def main():
     cv2.imshow("asfdf",absoluteMarkerTemplate)
     cv2.imshow("videoFrame",videoFrame)
     cv2.imshow("tesasdhfjd",videoFrame)
-    #cv2.imshow("jshshshshsh",tttmp)
-    #cv2.imshow("sfsdfjsdfksdjkf",absoluteFingerTemplate)
+    cv2.imshow("jshshshshsh",tttmp)
+    cv2.imshow("sfsdfjsdfksdjkf",absoluteFingerTemplate)
     cv2.imwrite("markerIO.jpg",fingerTemplate)
     cv2.imwrite("fingertmp.jpg",fingerTemplate_show)
 
@@ -453,7 +425,7 @@ def main():
             markerTemplate = mf.cutimg(absoluteRawVideoFrame,everyMarkerPointPlace[i],markerFrameWidth,markerFrameHeight)
             
             #今のフレームからオフセットつけた矩形の中でテンプレートマッチング
-            tmp___ =mf.find_marker(markerTemplate,point_loc_new[i],videoFrame,markerCutOffset,i)
+            tmp___ =mf.find_marker(markerTemplate,everyMarkerPointPlace[i],videoFrame,markerCutOffset,i)
             tmp_markerpoint = tmp___[0]
             cutplace__ = tmp___[1]
 
